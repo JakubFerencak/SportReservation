@@ -28,11 +28,8 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    // Definovanie vzťahu One-to-Many: Jeden používateľ môže mať veľa rezervácií.
-    // `mappedBy = "user"` hovorí Hibernate, že vzťah je už spravovaný na strane `Reservation` entity v poli `user`.
-    // `cascade = CascadeType.ALL` znamená, že ak zmažeme používateľa, zmažú sa aj všetky jeho rezervácie.
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore // Ignorujeme toto pole pri serializácii do JSON, aby sme predišli nekonečnej slučke.
+    @JsonIgnore
     private Set<Reservation> reservations;
 
     public User(String firstName, String lastName, String email) {
