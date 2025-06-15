@@ -25,7 +25,7 @@ public class SportReservationApplication {
 
 	private void createUser(AppDAO appDAO) {
 		System.out.println("Creating a new user object...");
-		User tempUser = new User("Peter", "Straka", "straka@email.com");
+		User tempUser = new User("Jana", "Ulicna", "ulicna@email.com");
 		System.out.println("Saving the user...");
 		appDAO.create(tempUser);
 		System.out.println("Saved user. Generated id: " + tempUser.getId());
