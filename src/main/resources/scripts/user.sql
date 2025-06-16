@@ -1,11 +1,9 @@
 DROP DATABASE IF EXISTS sport_reservation_db;
 DROP USER IF EXISTS 'mysqluser'@'%';
 
-
 CREATE USER 'mysqluser'@'%' IDENTIFIED BY 'mysqluser';
 CREATE DATABASE sport_reservation_db;
 USE sport_reservation_db;
-
 
 GRANT ALL PRIVILEGES ON sport_reservation_db.* TO 'mysqluser'@'%';
 FLUSH PRIVILEGES;
