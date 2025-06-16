@@ -54,7 +54,7 @@ cd SportReservation
 
 **Po úspešnom spustení aplikácie je interaktívna API dokumentácia (Swagger UI) dostupná na nasledujúcej adrese:**
 
-[http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html "null")
+http://localhost:8080/swagger-ui.html
 
 **V tomto rozhraní je možné prehľadne vidieť všetky dostupné API endpointy, ich parametre, očakávané vstupy a priamo ich aj testovať.**
 
