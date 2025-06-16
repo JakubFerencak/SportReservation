@@ -25,12 +25,46 @@ public class ReservationController {
     private ActivityRepository activityRepository;
 
 
-    public static record ReservationRequest(int userId, int activityId, LocalDateTime reservationTime) {}
+    public static record ReservationResponse(
+            int id,
+            LocalDateTime reservationTime,
+            int userId,
+            String userFirstName,
+            String userLastName,
+            int activityId,
+            String activityTitle,
+            String locationName
+    ) {}
 
+    private ReservationResponse toReservationResponse(Reservation reservation) {
+        return new ReservationResponse(
+                reservation.getId(),
+                reservation.getReservationTime(),
+                reservation.getUser().getId(),
+                reservation.getUser().getFirstName(),
+                reservation.getUser().getLastName(),
+                reservation.getActivity().getId(),
+                reservation.getActivity().getTitle(),
+                reservation.getActivity().getLocation().getName()
+        );
+    }
+
+
+    public static record ReservationRequest(int userId, int activityId, LocalDateTime reservationTime) {}
+    public static record ReservationUpdateRequest(LocalDateTime reservationTime) {}
+
+
+
+    @GetMapping("/reservations")
+    public List<ReservationResponse> getAllReservations() {
+        return reservationRepository.findAll()
+                .stream()
+                .map(this::toReservationResponse)
+                .collect(Collectors.toList());
+    }
 
     @PostMapping("/reservations")
-    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationRequest request) {
-
+    public ResponseEntity<ReservationResponse> createReservation(@RequestBody ReservationRequest request) {
         User user = userRepository.findById(request.userId()).orElse(null);
         Activity activity = activityRepository.findById(request.activityId()).orElse(null);
 
@@ -44,24 +78,49 @@ public class ReservationController {
         reservation.setReservationTime(request.reservationTime());
 
         Reservation savedReservation = reservationRepository.save(reservation);
-        return ResponseEntity.ok(savedReservation);
+        return ResponseEntity.ok(toReservationResponse(savedReservation));
     }
 
+    @PutMapping("/reservations/{id}")
+    public ResponseEntity<ReservationResponse> updateReservation(@PathVariable int id, @RequestBody ReservationUpdateRequest request) {
+        return reservationRepository.findById(id)
+                .map(reservation -> {
+                    reservation.setReservationTime(request.reservationTime());
+                    Reservation updatedReservation = reservationRepository.save(reservation);
+                    return ResponseEntity.ok(toReservationResponse(updatedReservation));
+                }).orElse(ResponseEntity.notFound().build());
+    }
 
     @GetMapping("/users/{userId}/reservations")
-    public ResponseEntity<List<Reservation>> getReservationsByUser(@PathVariable int userId) {
+    public ResponseEntity<List<ReservationResponse>> getReservationsByUser(@PathVariable int userId) {
         if (!userRepository.existsById(userId)) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(reservationRepository.findByUserId(userId));
+        List<ReservationResponse> responseList = reservationRepository.findByUserId(userId)
+                .stream()
+                .map(this::toReservationResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responseList);
     }
 
-
     @GetMapping("/activities/{activityId}/reservations")
-    public ResponseEntity<List<Reservation>> getReservationsByActivity(@PathVariable int activityId) {
+    public ResponseEntity<List<ReservationResponse>> getReservationsByActivity(@PathVariable int activityId) {
         if (!activityRepository.existsById(activityId)) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(reservationRepository.findByActivityId(activityId));
+        List<ReservationResponse> responseList = reservationRepository.findByActivityId(activityId)
+                .stream()
+                .map(this::toReservationResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responseList);
+    }
+
+    @DeleteMapping("/reservations/{id}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable int id) {
+        return reservationRepository.findById(id)
+                .map(reservation -> {
+                    reservationRepository.delete(reservation);
+                    return ResponseEntity.ok().<Void>build();
+                }).orElse(ResponseEntity.notFound().build());
     }
 }

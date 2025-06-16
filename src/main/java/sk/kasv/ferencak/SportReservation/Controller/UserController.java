@@ -13,11 +13,13 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    public static record UserRequest(String firstName, String lastName, String email) {}
 
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+    public User createUser(@RequestBody UserRequest request) {
+        User newUser = new User(request.firstName(), request.lastName(), request.email());
+        return userRepository.save(newUser);
     }
 
     @GetMapping
@@ -33,12 +35,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable(value = "id") int userId, @RequestBody User userDetails) {
+    public ResponseEntity<User> updateUser(@PathVariable(value = "id") int userId, @RequestBody UserRequest userDetails) {
         return userRepository.findById(userId)
                 .map(user -> {
-                    user.setFirstName(userDetails.getFirstName());
-                    user.setLastName(userDetails.getLastName());
-                    user.setEmail(userDetails.getEmail());
+                    user.setFirstName(userDetails.firstName());
+                    user.setLastName(userDetails.lastName());
+                    user.setEmail(userDetails.email());
                     User updatedUser = userRepository.save(user);
                     return ResponseEntity.ok().body(updatedUser);
                 }).orElse(ResponseEntity.notFound().build());

@@ -22,25 +22,17 @@ public class Activity {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "location")
-    private String location;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
 
     @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Reservation> reservations;
 
-    public Activity(String title, String location) {
+    public Activity(String title, Location location) {
         this.title = title;
         this.location = location;
-    }
-
-    @Override
-    public String toString() {
-        return "Activity{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", location='" + location + '\'' +
-                '}';
     }
 }
